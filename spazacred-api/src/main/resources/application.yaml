@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: spazacred-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/spazacred_db}
+    username: ${DB_USERNAME:spazacred_user}
+    password: ${DB_PASSWORD:spazacred_pass}
+    jpa:
+      hibernate:
+        ddl-auto: validate
+      open-in-view: false
+    flyway:
+      enabled: true
