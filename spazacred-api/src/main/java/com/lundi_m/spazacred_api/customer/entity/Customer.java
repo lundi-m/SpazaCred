@@ -1,0 +1,55 @@
+package com.lundi_m.spazacred_api.customer.entity;
+
+import com.lundi_m.spazacred_api.config.Auditable;
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.Objects;
+
+@Entity
+@Table(name = "customers")
+@Getter
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Customer extends Auditable {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "first_name", nullable = false, length = 100)
+    private String firstName;
+
+    @Column(name = "middle_name", length = 100)
+    private String middleName;
+
+    @Column(name = "last_name", nullable = false, length = 100)
+    private String lastName;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String phone;
+
+    @Column(unique = true)
+    private String email;
+
+    @Column(name = "id_number", nullable = false, unique = true, length = 20)
+    private String idNumber;
+
+    @Column(nullable = false)
+    private boolean active = true;
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        Customer customer = (Customer) object;
+        return active == customer.active && Objects.equals(id, customer.id) && Objects.equals(firstName, customer.firstName) && Objects.equals(middleName, customer.middleName) && Objects.equals(lastName, customer.lastName) && Objects.equals(phone, customer.phone) && Objects.equals(email, customer.email) && Objects.equals(idNumber, customer.idNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, middleName, lastName, phone, email, idNumber, active);
+    }
+}
