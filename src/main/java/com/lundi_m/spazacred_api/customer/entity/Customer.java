@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
 import java.util.Objects;
 
@@ -43,13 +44,15 @@ public class Customer extends Auditable {
 
     @Override
     public boolean equals(Object object) {
-        if (object == null || getClass() != object.getClass()) return false;
+        if (this == object) return true;
+        if (object == null || Hibernate.getClass(this) != Hibernate.getClass(object)) return false;
+
         Customer customer = (Customer) object;
-        return active == customer.active && Objects.equals(id, customer.id) && Objects.equals(firstName, customer.firstName) && Objects.equals(middleName, customer.middleName) && Objects.equals(lastName, customer.lastName) && Objects.equals(phone, customer.phone) && Objects.equals(email, customer.email) && Objects.equals(idNumber, customer.idNumber);
+        return id != null && Objects.equals(id, customer.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, middleName, lastName, phone, email, idNumber, active);
+        return Hibernate.getClass(this).hashCode();
     }
 }
