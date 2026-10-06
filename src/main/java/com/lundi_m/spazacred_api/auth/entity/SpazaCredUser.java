@@ -6,8 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 @Entity
@@ -45,13 +45,15 @@ public class SpazaCredUser extends Auditable {
 
     @Override
     public boolean equals(Object object) {
-        if (object == null || getClass() != object.getClass()) return false;
+        if (this == object) return true;
+        if (object == null || Hibernate.getClass(this) != Hibernate.getClass(object)) return false;
+
         SpazaCredUser that = (SpazaCredUser) object;
-        return enabled == that.enabled && Objects.equals(id, that.id) && Objects.equals(firstName, that.firstName) && Objects.equals(middleName, that.middleName) && Objects.equals(lastName, that.lastName) && Objects.equals(email, that.email) && Objects.equals(passwordHash, that.passwordHash) && role == that.role;
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, middleName, lastName, email, passwordHash, role, enabled);
+        return Hibernate.getClass(this).hashCode();
     }
 }
