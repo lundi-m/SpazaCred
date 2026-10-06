@@ -13,11 +13,7 @@ import java.time.LocalDate;
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class Auditable {
-
-    @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDate createdAt;
+public abstract class Auditable extends CreatedAtAuditable {
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
