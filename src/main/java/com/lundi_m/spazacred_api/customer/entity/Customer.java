@@ -40,6 +40,9 @@ public class Customer extends Auditable {
     private String idNumber;
 
     @Column(nullable = false)
+    private String address;
+
+    @Column(nullable = false)
     private boolean active = true;
 
     @Override
