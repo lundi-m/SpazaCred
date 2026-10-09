@@ -3,8 +3,9 @@ CREATE TABLE payment_allocations (
     payment_id BIGINT NOT NULL REFERENCES payments(id),
     credit_transaction_id BIGINT NOT NULL REFERENCES credit_transactions(id),
     amount_allocated NUMERIC(19,2) NOT NULL,
-    reversed_at TIMESTAMP,
     created_at TIMESTAMP NOT NULL,
+    reversed_at TIMESTAMP,
+    reversed_by BIGINT REFERENCES users(id),
 
     CONSTRAINT chk_payment_allocations_amount CHECK (amount_allocated > 0),
     CONSTRAINT uq_payment_allocation UNIQUE (payment_id, credit_transaction_id)
