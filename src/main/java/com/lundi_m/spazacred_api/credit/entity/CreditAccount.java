@@ -38,6 +38,12 @@ public class CreditAccount extends Auditable {
     @Column(nullable = false)
     private Long version;
 
+    public CreditAccount(Customer customer, BigDecimal creditLimit) {
+        this.customer = customer;
+        this.creditLimit = creditLimit;
+        this.status = AccountStatus.ACTIVE;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;

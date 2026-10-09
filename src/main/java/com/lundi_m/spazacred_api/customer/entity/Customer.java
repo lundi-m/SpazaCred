@@ -45,6 +45,22 @@ public class Customer extends Auditable {
     @Column(nullable = false)
     private boolean active = true;
 
+    public Customer(String firstName,
+                    String middleName,
+                    String lastName,
+                    String phone,
+                    String email,
+                    String idNumber,
+                    String address) {
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.email = email;
+        this.idNumber = idNumber;
+        this.address = address;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
