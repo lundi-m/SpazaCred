@@ -5,11 +5,12 @@ CREATE TABLE payments (
     recorded_by BIGINT NOT NULL REFERENCES users(id),
     amount NUMERIC(19,2) NOT NULL,
     payment_method VARCHAR(20) NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
+    status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED',
     created_at TIMESTAMP NOT NULL,
     voided_at TIMESTAMP,
+    voided_by BIGINT REFERENCES users(id),
 
     CONSTRAINT chk_payment_amount CHECK (amount > 0),
     CONSTRAINT chk_payment_method CHECK (payment_method IN ('CASH', 'CARD', 'EFT')),
-    CONSTRAINT chk_payment_status CHECK (status IN ('ACTIVE', 'VOIDED'))
+    CONSTRAINT chk_payment_status CHECK (status IN ('COMPLETED', 'VOIDED'))
 );
