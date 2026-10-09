@@ -6,6 +6,7 @@ CREATE TABLE customers(
     phone VARCHAR(20) NOT NULL UNIQUE,
     email VARCHAR(255) UNIQUE,
     id_number VARCHAR(20) NOT NULL UNIQUE,
+    address VARCHAR(255) NOT NULL,
     active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
