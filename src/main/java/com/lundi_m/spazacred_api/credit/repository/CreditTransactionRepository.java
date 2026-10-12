@@ -15,7 +15,7 @@ public interface CreditTransactionRepository extends JpaRepository<CreditTransac
         SELECT COALESCE(SUM(t.amount), 0)
         FROM CreditTransaction t
         WHERE t.creditAccount.id = :accountId
-            AND t.status = com.lundi_m.spazacred_api.credit.entity.AccountStatus.ACTIVE
+            AND t.status = com.lundi_m.spazacred_api.credit.entity.TransactionStatus.ACTIVE
     """)
     BigDecimal sumActiveAmountsByAccountId(@Param("accountId") Long accountId);
 }
