@@ -38,6 +38,14 @@ public class AuditLog extends CreatedAtAuditable {
     @Column(columnDefinition = "jsonb")
     private String details;
 
+    public AuditLog(SpazaCredUser user, String action, String entityType, Long entityId, String details) {
+        this.user = user;
+        this.action = action;
+        this.entityType = entityType;
+        this.entityId = entityId;
+        this.details = details;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
