@@ -14,7 +14,7 @@ public interface PaymentAllocationRepository extends JpaRepository<PaymentAlloca
     @Query("""
         SELECT COALESCE(SUM(a.amountAllocated), 0)
         FROM PaymentAllocation a
-        WHERE a.creditTransaction.creditAccount.id = :amountId
+        WHERE a.creditTransaction.creditAccount.id = :accountId
             AND a.reversedAt IS NULL
     """)
     BigDecimal sumActiveAllocationsByAccountId(@Param("accountId") Long accountId);
