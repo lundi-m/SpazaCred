@@ -33,7 +33,7 @@ public class CreditAccountController {
 
     @PatchMapping("/reactivate")
     public ResponseEntity<CreditAccountResponse> reactivate(@PathVariable Long customerId) {
-        return ResponseEntity.ok(accountService.suspendAccount(customerId));
+        return ResponseEntity.ok(accountService.reactivateAccount(customerId));
     }
 
     @PatchMapping("/close")
