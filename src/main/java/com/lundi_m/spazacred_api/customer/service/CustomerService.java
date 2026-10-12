@@ -82,7 +82,7 @@ public class CustomerService {
     public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest request) {
         Customer customer = findCustomerOrThrow(id);
 
-        if (customerRepository.existsByEmailAndIdNot(request.email(), id)) {
+        if (request.email() != null && customerRepository.existsByEmailAndIdNot(request.email(), id)) {
             throw new DuplicateEmailException(request.email());
         }
 
