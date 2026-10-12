@@ -50,7 +50,12 @@ public class CreditAccountService {
         String details = String.format("{\"oldLimit\":%s,\"newLimit\":%s, \"reason\":\"%s\"}",
                 oldLimit, request.newLimit(), request.reason());
 
-        auditLogService.record(null, "LIMIT_ADJUSTED", "CreditAccount", account.getId(), details);
+        auditLogService.record(null,
+                "LIMIT_ADJUSTED",
+                "CreditAccount",
+                account.getId(),
+                details
+        );
 
         return toResponse(account);
     }
@@ -109,12 +114,21 @@ public class CreditAccountService {
             );
         }
 
+        account.setStatus(AccountStatus.CLOSED);
+        auditLogService.record(null,
+                "ACCOUNT_CLOSED",
+                "CreditAccount",
+                account.getId(),
+                null
+        );
+
         return toResponse(account);
     }
 
     private CreditAccount findAccountOrThrow(Long customerId) {
         return creditAccountRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new CreditAccountNotFoundException(customerId));
+                .orElseThrow(() -> new CreditAccountNotFoundException(customerId)
+        );
     }
 
     private CreditAccountResponse toResponse(CreditAccount account) {
