@@ -18,4 +18,6 @@ public interface PaymentAllocationRepository extends JpaRepository<PaymentAlloca
             AND a.reversedAt IS NULL
     """)
     BigDecimal sumActiveAllocationsByAccountId(@Param("accountId") Long accountId);
+
+    boolean existsByCreditTransaction_IdAndReversedAtIsNull(Long creditTransactionId);
 }
