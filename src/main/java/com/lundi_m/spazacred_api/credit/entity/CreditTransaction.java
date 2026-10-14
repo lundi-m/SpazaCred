@@ -33,7 +33,7 @@ public class CreditTransaction extends CreatedAtAuditable {
     private CreditAccount creditAccount;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
+    @JoinColumn(name = "created_by")
     private SpazaCredUser createdBy;
 
     @Column(nullable = false)
@@ -60,6 +60,20 @@ public class CreditTransaction extends CreatedAtAuditable {
         this.status = TransactionStatus.VOIDED;
         this.voidedBy = voidedBy;
         this.voidedAt = Instant.now();
+    }
+
+    public CreditTransaction(String referenceNumber,
+                             CreditAccount creditAccount,
+                             SpazaCredUser createdBy,
+                             BigDecimal amount,
+                             String description, LocalDate dueDate) {
+        this.referenceNumber = referenceNumber;
+        this.creditAccount = creditAccount;
+        this.createdBy = createdBy;
+        this.amount = amount;
+        this.description = description;
+        this.dueDate = dueDate;
+        this.status = TransactionStatus.ACTIVE;
     }
 
     @Override
