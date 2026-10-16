@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Service
 @RequiredArgsConstructor
 public class AuditLogService {
@@ -14,7 +16,7 @@ public class AuditLogService {
     private final AuditLogRepository auditLogRepository;
 
     @Transactional
-    public void record(SpazaCredUser user, String action, String entityType, Long entityId, String detailsJson) {
+    public void record(SpazaCredUser user, String action, String entityType, Long entityId, Map<String, Object> detailsJson) {
         AuditLog log = new AuditLog(user, action, entityType, entityId, detailsJson);
         auditLogRepository.save(log);
     }
