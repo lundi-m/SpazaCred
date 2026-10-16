@@ -43,6 +43,14 @@ public class PaymentAllocation extends CreatedAtAuditable {
     @JoinColumn(name = "reversed_by")
     private SpazaCredUser reversedBy;
 
+    public PaymentAllocation(Payment payment,
+                             CreditTransaction creditTransaction,
+                             BigDecimal amountAllocated) {
+        this.payment = payment;
+        this.creditTransaction = creditTransaction;
+        this.amountAllocated = amountAllocated;
+    }
+
     public void reverse(SpazaCredUser reversedBy) {
         this.reversedBy = reversedBy;
         this.reversedAt = Instant.now();
