@@ -33,7 +33,7 @@ public class Payment extends CreatedAtAuditable {
     private Customer customer;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recorded_by", nullable = false)
+    @JoinColumn(name = "recorded_by")
     private SpazaCredUser recordedBy;
 
     @Column(nullable = false)
@@ -53,6 +53,18 @@ public class Payment extends CreatedAtAuditable {
 
     @Column(name = "voided_at")
     private Instant voidedAt;
+
+    public Payment(String referenceNumber,
+                   Customer customer,
+                   SpazaCredUser recordedBy,
+                   BigDecimal amount,
+                   PaymentMethod paymentMethod) {
+        this.referenceNumber = referenceNumber;
+        this.customer = customer;
+        this.recordedBy = recordedBy;
+        this.amount = amount;
+        this.paymentMethod = paymentMethod;
+    }
 
     public void voidPayment(SpazaCredUser voidedBy) {
         this.status = PaymentStatus.VOIDED;
