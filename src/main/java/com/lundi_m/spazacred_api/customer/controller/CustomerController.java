@@ -1,5 +1,6 @@
 package com.lundi_m.spazacred_api.customer.controller;
 
+import com.lundi_m.spazacred_api.credit.dto.AccountStatusChangeRequest;
 import com.lundi_m.spazacred_api.customer.dto.CreateCustomerRequest;
 import com.lundi_m.spazacred_api.customer.dto.CustomerResponse;
 import com.lundi_m.spazacred_api.customer.dto.UpdateCustomerRequest;
@@ -44,8 +45,9 @@ public class CustomerController {
     }
 
     @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<CustomerResponse> deactivateCustomer(@PathVariable Long id) {
-        customerService.deactivateCustomer(id);
+    public ResponseEntity<CustomerResponse> deactivateCustomer(@PathVariable Long id,
+                                                               @Valid @RequestBody AccountStatusChangeRequest request) {
+        customerService.deactivateCustomer(id, request);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,7 @@
 package com.lundi_m.spazacred_api.customer.service;
 
+import com.lundi_m.spazacred_api.audit.service.AuditLogService;
+import com.lundi_m.spazacred_api.credit.dto.AccountStatusChangeRequest;
 import com.lundi_m.spazacred_api.credit.entity.CreditAccount;
 import com.lundi_m.spazacred_api.credit.repository.CreditAccountRepository;
 import com.lundi_m.spazacred_api.credit.service.CreditAccountService;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class CustomerService {
     private final CreditAccountRepository creditAccountRepository;
 
     private final CreditAccountService accountService;
+    private final AuditLogService auditLogService;
 
     @Transactional
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
@@ -51,6 +55,12 @@ public class CustomerService {
                 request.address()
         );
         customer = customerRepository.save(customer);
+        auditLogService.record(null,
+                "CUSTOMER_CREATED",
+                "Customer",
+                customer.getId(),
+                null
+        );
 
         CreditAccount account = new CreditAccount(customer, request.creditLimit());
         account = creditAccountRepository.save(account);
@@ -98,11 +108,16 @@ public class CustomerService {
         customer.setAddress(request.address());
 
         CreditAccount account = findAccountOrThrow(id);
+        auditLogService.record(null,
+                "CUSTOMER_UPDATED",
+                "Customer",
+                id,
+                null);
         return toResponse(customer, account);
     }
 
     @Transactional
-    public void deactivateCustomer(Long id) {
+    public void deactivateCustomer(Long id, AccountStatusChangeRequest request) {
         Customer customer = findCustomerOrThrow(id);
         CreditAccount account = findAccountOrThrow(id);
 
@@ -111,6 +126,13 @@ public class CustomerService {
         }
 
         customer.setActive(false);
+        Map<String, Object> details = Map.of("reason", request);
+        auditLogService.record(null,
+                "CUSTOMER_DEACTIVATED",
+                "Customer",
+                customer.getId(),
+                details
+                );
     }
 
     private Customer findCustomerOrThrow(Long id) {

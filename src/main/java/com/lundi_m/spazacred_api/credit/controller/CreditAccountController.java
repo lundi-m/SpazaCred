@@ -2,6 +2,7 @@ package com.lundi_m.spazacred_api.credit.controller;
 
 import com.lundi_m.spazacred_api.audit.dto.AdjustLimitRequest;
 import com.lundi_m.spazacred_api.audit.dto.CreditAccountResponse;
+import com.lundi_m.spazacred_api.credit.dto.AccountStatusChangeRequest;
 import com.lundi_m.spazacred_api.credit.service.CreditAccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,17 +28,20 @@ public class CreditAccountController {
     }
 
     @PatchMapping("/suspend")
-    public ResponseEntity<CreditAccountResponse> suspend(@PathVariable Long customerId) {
-        return ResponseEntity.ok(accountService.suspendAccount(customerId));
+    public ResponseEntity<CreditAccountResponse> suspend(@PathVariable Long customerId,
+                                                         @Valid @RequestBody AccountStatusChangeRequest request) {
+        return ResponseEntity.ok(accountService.suspendAccount(customerId, request));
     }
 
     @PatchMapping("/reactivate")
-    public ResponseEntity<CreditAccountResponse> reactivate(@PathVariable Long customerId) {
-        return ResponseEntity.ok(accountService.reactivateAccount(customerId));
+    public ResponseEntity<CreditAccountResponse> reactivate(@PathVariable Long customerId,
+                                                            @Valid @RequestBody AccountStatusChangeRequest request) {
+        return ResponseEntity.ok(accountService.reactivateAccount(customerId, request));
     }
 
     @PatchMapping("/close")
-    public ResponseEntity<CreditAccountResponse> close(@PathVariable Long customerId) {
-        return ResponseEntity.ok(accountService.closeAccount(customerId));
+    public ResponseEntity<CreditAccountResponse> close(@PathVariable Long customerId,
+                                                       @Valid @RequestBody AccountStatusChangeRequest request) {
+        return ResponseEntity.ok(accountService.closeAccount(customerId, request));
     }
 }

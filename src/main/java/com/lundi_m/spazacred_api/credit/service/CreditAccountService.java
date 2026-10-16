@@ -3,6 +3,7 @@ package com.lundi_m.spazacred_api.credit.service;
 import com.lundi_m.spazacred_api.audit.dto.AdjustLimitRequest;
 import com.lundi_m.spazacred_api.audit.dto.CreditAccountResponse;
 import com.lundi_m.spazacred_api.audit.service.AuditLogService;
+import com.lundi_m.spazacred_api.credit.dto.AccountStatusChangeRequest;
 import com.lundi_m.spazacred_api.credit.entity.AccountStatus;
 import com.lundi_m.spazacred_api.credit.entity.CreditAccount;
 import com.lundi_m.spazacred_api.credit.repository.CreditAccountRepository;
@@ -65,7 +66,7 @@ public class CreditAccountService {
     }
 
     @Transactional
-    public CreditAccountResponse suspendAccount(Long customerId) {
+    public CreditAccountResponse suspendAccount(Long customerId, AccountStatusChangeRequest request) {
         CreditAccount account = findAccountOrThrow(customerId);
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new InvalidAccountStatusTransitionException(
@@ -74,18 +75,19 @@ public class CreditAccountService {
         }
 
         account.setStatus(AccountStatus.SUSPENDED);
+        Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(null,
                 "ACCOUNT_SUSPENDED",
                 "CreditAccount",
                 account.getId(),
-                null
+                details
         );
 
         return toResponse(account);
     }
 
     @Transactional
-    public CreditAccountResponse reactivateAccount(Long customerId) {
+    public CreditAccountResponse reactivateAccount(Long customerId, AccountStatusChangeRequest request) {
         CreditAccount account = findAccountOrThrow(customerId);
         if (account.getStatus() != AccountStatus.SUSPENDED) {
             throw new InvalidAccountStatusTransitionException(
@@ -94,18 +96,19 @@ public class CreditAccountService {
         }
 
         account.setStatus(AccountStatus.ACTIVE);
+        Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(null,
                 "ACCOUNT_REACTIVATED",
                 "CreditAccount",
                 account.getId(),
-                null
+                details
         );
 
         return toResponse(account);
     }
 
     @Transactional
-    public CreditAccountResponse closeAccount(Long customerId) {
+    public CreditAccountResponse closeAccount(Long customerId, AccountStatusChangeRequest request) {
         CreditAccount account = findAccountOrThrow(customerId);
         if (account.getStatus() == AccountStatus.CLOSED) {
             throw new InvalidAccountStatusTransitionException("Account is already closed");
@@ -119,11 +122,12 @@ public class CreditAccountService {
         }
 
         account.setStatus(AccountStatus.CLOSED);
+        Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(null,
                 "ACCOUNT_CLOSED",
                 "CreditAccount",
                 account.getId(),
-                null
+                details
         );
 
         return toResponse(account);
