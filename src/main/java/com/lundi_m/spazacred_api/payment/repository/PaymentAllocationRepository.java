@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface PaymentAllocationRepository extends JpaRepository<PaymentAllocation, Long> {
@@ -19,5 +20,15 @@ public interface PaymentAllocationRepository extends JpaRepository<PaymentAlloca
     """)
     BigDecimal sumActiveAllocationsByAccountId(@Param("accountId") Long accountId);
 
+    @Query("""
+        SELECT COALESCE(SUM(a.amountAllocated), 0)
+        FROM PaymentAllocation a
+        WHERE a.creditTransaction.id = :transactionId
+            AND a.reversedAt IS NULL
+    """)
+    BigDecimal sumActiveAllocationsByTransactionId(@Param("transactionId") Long transactionId);
+
     boolean existsByCreditTransaction_IdAndReversedAtIsNull(Long creditTransactionId);
+
+    List<PaymentAllocation> findByPayment_IdAndReversedAtIsNull(Long paymentId);
 }
