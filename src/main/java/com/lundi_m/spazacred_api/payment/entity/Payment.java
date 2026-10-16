@@ -64,6 +64,7 @@ public class Payment extends CreatedAtAuditable {
         this.recordedBy = recordedBy;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
+        this.status = PaymentStatus.COMPLETED;
     }
 
     public void voidPayment(SpazaCredUser voidedBy) {
