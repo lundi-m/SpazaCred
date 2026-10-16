@@ -25,6 +25,7 @@ import java.math.BigDecimal;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -63,9 +64,11 @@ public class PaymentService {
 
         List<PaymentAllocationResponse> allocationResponses = allocate(payment, account, request.amount());
 
-        String details = String.format(
-                "{\"referenceNumber\":%s,\"amount\":%s, \"paymentMethod\":\"%s\"}",
-                referenceNumber, request.amount(), request.paymentMethod());
+        Map<String, Object> details = Map.of(
+                "referenceNumber", referenceNumber,
+                "amount", request.amount() ,
+                "paymentMethod", request.paymentMethod()
+        );
         auditLogService.record(null, "PAYMENT_RECORDED", "Payment", payment.getId(), details);
 
         return toResponse(payment, customerId, allocationResponses);

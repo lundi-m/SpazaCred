@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.Year;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -66,8 +67,13 @@ public class CreditTransactionService {
         );
         transaction = creditTransactionRepository.save(transaction);
 
-        String details = String.format("{\"referenceNumber\":%s,\"amount\":%s, \"dueDate\":\"%s\"}",
-                referenceNumber, request.amount(), request.dueDate());
+        assert request.dueDate() != null;
+        Map<String, Object> details = Map.of(
+                "referenceNumber", referenceNumber,
+                "amount", request.amount(),
+                "dueDate", transaction.getDueDate()
+        );
+
         auditLogService.record(
                 null,
                 "PURCHASE_CREATED",
@@ -109,7 +115,7 @@ public class CreditTransactionService {
 
         transaction.voidTransaction(null);
 
-        String details = String.format("{\"referenceNumber\":%s\"}", request.reason());
+        Map<String, Object> details = Map.of("referenceNumber", request.reason());
         auditLogService.record(
                 null,
                 "TRANSACTION_VOIDED",

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -47,8 +48,11 @@ public class CreditAccountService {
 
         account.setCreditLimit(request.newLimit());
 
-        String details = String.format("{\"oldLimit\":%s,\"newLimit\":%s, \"reason\":\"%s\"}",
-                oldLimit, request.newLimit(), request.reason());
+        Map<String, Object> details = Map.of(
+                "oldLimit", oldLimit,
+                "newLimit", request.newLimit(),
+                "reason", request.reason()
+        );
 
         auditLogService.record(null,
                 "LIMIT_ADJUSTED",
