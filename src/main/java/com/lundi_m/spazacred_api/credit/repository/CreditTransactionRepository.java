@@ -1,6 +1,7 @@
 package com.lundi_m.spazacred_api.credit.repository;
 
 import com.lundi_m.spazacred_api.credit.entity.CreditTransaction;
+import com.lundi_m.spazacred_api.credit.entity.TransactionStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Repository
 public interface CreditTransactionRepository extends JpaRepository<CreditTransaction, Long> {
@@ -25,4 +27,8 @@ public interface CreditTransactionRepository extends JpaRepository<CreditTransac
     Long nextReferenceSequence();
 
     Page<CreditTransaction> findByCreditAccount_Id(Long creditAccount, Pageable pageable);
+
+    List<CreditTransaction> findByCreditAccount_IdAndStatusOrderByDueDateAscCreatedAtAscIdAsc(
+            Long creditAccountId, TransactionStatus status
+    );
 }
