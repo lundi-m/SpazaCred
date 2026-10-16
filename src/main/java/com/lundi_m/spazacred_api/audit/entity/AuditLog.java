@@ -8,7 +8,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.util.Map;
 import java.util.Objects;
 
 @Entity
@@ -35,10 +38,11 @@ public class AuditLog extends CreatedAtAuditable {
     @Column(name = "entity_id", nullable = false)
     private Long entityId;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private String details;
+    private Map<String, Object> details;
 
-    public AuditLog(SpazaCredUser user, String action, String entityType, Long entityId, String details) {
+    public AuditLog(SpazaCredUser user, String action, String entityType, Long entityId, Map<String, Object> details) {
         this.user = user;
         this.action = action;
         this.entityType = entityType;
