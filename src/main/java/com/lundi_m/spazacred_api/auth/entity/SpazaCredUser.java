@@ -40,6 +40,9 @@ public class SpazaCredUser extends Auditable {
     @Column(nullable = false)
     private Role role;
 
+    @Column(name = "must_change_password", nullable = false)
+    private boolean mustChangePassword = false;
+
     @Column(nullable = false)
     private boolean enabled = true;
 
