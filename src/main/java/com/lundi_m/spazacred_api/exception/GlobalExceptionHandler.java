@@ -2,6 +2,7 @@ package com.lundi_m.spazacred_api.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,5 +38,16 @@ public class GlobalExceptionHandler {
                 fieldErrors
         );
         return ResponseEntity.badRequest().body(body);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException exception) {
+        ErrorResponse body = ErrorResponse.of(
+                HttpStatus.UNAUTHORIZED.value(),
+                HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+                "Invalid email or password"
+        );
+
+       return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(body);
     }
 }
