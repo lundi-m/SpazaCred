@@ -12,6 +12,6 @@ spring:
   flyway:
     enabled: true
 
-  jwt:
-    secret: ${JWT_SECRET:9l7w9c8d2e1b4n6f9d7c6e8a1b5f6d9c2e4a7b8c1d3f5e6a9b2c4b7q8f1b3c6}
-    expiration-hours: 12
+jwt:
+  secret: ${JWT_SECRET:9l7w9c8d2e1b4n6f9d7c6e8a1b5f6d9c2e4a7b8c1d3f5e6a9b2c4b7q8f1b3c6}
+  expiration-hours: 12
