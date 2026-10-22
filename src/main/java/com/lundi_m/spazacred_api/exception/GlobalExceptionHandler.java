@@ -2,6 +2,7 @@ package com.lundi_m.spazacred_api.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -49,5 +50,16 @@ public class GlobalExceptionHandler {
         );
 
        return ResponseEntity.status(HttpStatus.UNAUTHORIZED.value()).body(body);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException exception) {
+        ErrorResponse body = ErrorResponse.of(
+                HttpStatus.FORBIDDEN.value(),
+                HttpStatus.FORBIDDEN.getReasonPhrase(),
+                "You do not have permission to perform  this action"
+        );
+
+       return ResponseEntity.status(HttpStatus.FORBIDDEN.value()).body(body);
     }
 }
