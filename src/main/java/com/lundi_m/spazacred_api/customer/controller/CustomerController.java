@@ -45,7 +45,7 @@ public class CustomerController {
     }
 
     @PatchMapping("/{id}/deactivate")
-    public ResponseEntity<CustomerResponse> deactivateCustomer(@PathVariable Long id,
+    public ResponseEntity<Void> deactivateCustomer(@PathVariable Long id,
                                                                @Valid @RequestBody AccountStatusChangeRequest request) {
         customerService.deactivateCustomer(id, request);
         return ResponseEntity.noContent().build();
