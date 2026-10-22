@@ -1,4 +1,4 @@
-package com.lundi_m.spazacred_api.audit.dto;
+package com.lundi_m.spazacred_api.credit.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
