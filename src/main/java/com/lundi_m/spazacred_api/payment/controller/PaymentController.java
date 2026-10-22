@@ -31,7 +31,7 @@ public class PaymentController {
         return ResponseEntity.ok(paymentService.getPayments(customerId, pageable));
     }
 
-    @PostMapping("/api/v1/payments/{paymentId}")
+    @PostMapping("/api/v1/payments/{paymentId}/void")
     public ResponseEntity<PaymentResponse> voidPayment(@PathVariable Long paymentId,
                                                        @Valid @RequestBody VoidPaymentRequest request) {
         return ResponseEntity.ok(paymentService.voidPayment(paymentId, request));
