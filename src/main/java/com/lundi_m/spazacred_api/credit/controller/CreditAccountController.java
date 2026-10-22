@@ -1,7 +1,7 @@
 package com.lundi_m.spazacred_api.credit.controller;
 
-import com.lundi_m.spazacred_api.audit.dto.AdjustLimitRequest;
-import com.lundi_m.spazacred_api.audit.dto.CreditAccountResponse;
+import com.lundi_m.spazacred_api.credit.dto.AdjustLimitRequest;
+import com.lundi_m.spazacred_api.credit.dto.CreditAccountResponse;
 import com.lundi_m.spazacred_api.credit.dto.AccountStatusChangeRequest;
 import com.lundi_m.spazacred_api.credit.service.CreditAccountService;
 import jakarta.validation.Valid;
