@@ -1,7 +1,7 @@
 package com.lundi_m.spazacred_api.credit.service;
 
-import com.lundi_m.spazacred_api.audit.dto.AdjustLimitRequest;
-import com.lundi_m.spazacred_api.audit.dto.CreditAccountResponse;
+import com.lundi_m.spazacred_api.credit.dto.AdjustLimitRequest;
+import com.lundi_m.spazacred_api.credit.dto.CreditAccountResponse;
 import com.lundi_m.spazacred_api.audit.service.AuditLogService;
 import com.lundi_m.spazacred_api.credit.dto.AccountStatusChangeRequest;
 import com.lundi_m.spazacred_api.credit.entity.AccountStatus;
@@ -11,7 +11,9 @@ import com.lundi_m.spazacred_api.credit.repository.CreditTransactionRepository;
 import com.lundi_m.spazacred_api.exception.CreditAccountNotFoundException;
 import com.lundi_m.spazacred_api.exception.InvalidAccountStatusTransitionException;
 import com.lundi_m.spazacred_api.payment.repository.PaymentAllocationRepository;
+import com.lundi_m.spazacred_api.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +27,8 @@ public class CreditAccountService {
     private final CreditAccountRepository creditAccountRepository;
     private final CreditTransactionRepository creditTransactionRepository;
     private final PaymentAllocationRepository paymentAllocationRepository;
-
     private final AuditLogService auditLogService;
+    private final CurrentUserProvider currentUserProvider;
 
     @Transactional(readOnly = true)
     public BigDecimal getOutstandingBalance(Long accountId) {
@@ -42,6 +44,7 @@ public class CreditAccountService {
         return toResponse(account);
     }
 
+    @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditAccountResponse adjustCreditLimit(Long customerId, AdjustLimitRequest request) {
         CreditAccount account = findAccountOrThrow(customerId);
@@ -55,7 +58,8 @@ public class CreditAccountService {
                 "reason", request.reason()
         );
 
-        auditLogService.record(null,
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
                 "LIMIT_ADJUSTED",
                 "CreditAccount",
                 account.getId(),
@@ -65,6 +69,7 @@ public class CreditAccountService {
         return toResponse(account);
     }
 
+    @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditAccountResponse suspendAccount(Long customerId, AccountStatusChangeRequest request) {
         CreditAccount account = findAccountOrThrow(customerId);
@@ -76,7 +81,8 @@ public class CreditAccountService {
 
         account.setStatus(AccountStatus.SUSPENDED);
         Map<String, Object> details = Map.of("reason", request.reason());
-        auditLogService.record(null,
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
                 "ACCOUNT_SUSPENDED",
                 "CreditAccount",
                 account.getId(),
@@ -86,6 +92,7 @@ public class CreditAccountService {
         return toResponse(account);
     }
 
+    @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditAccountResponse reactivateAccount(Long customerId, AccountStatusChangeRequest request) {
         CreditAccount account = findAccountOrThrow(customerId);
@@ -97,7 +104,8 @@ public class CreditAccountService {
 
         account.setStatus(AccountStatus.ACTIVE);
         Map<String, Object> details = Map.of("reason", request.reason());
-        auditLogService.record(null,
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
                 "ACCOUNT_REACTIVATED",
                 "CreditAccount",
                 account.getId(),
@@ -107,6 +115,7 @@ public class CreditAccountService {
         return toResponse(account);
     }
 
+    @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditAccountResponse closeAccount(Long customerId, AccountStatusChangeRequest request) {
         CreditAccount account = findAccountOrThrow(customerId);
@@ -123,7 +132,8 @@ public class CreditAccountService {
 
         account.setStatus(AccountStatus.CLOSED);
         Map<String, Object> details = Map.of("reason", request.reason());
-        auditLogService.record(null,
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
                 "ACCOUNT_CLOSED",
                 "CreditAccount",
                 account.getId(),

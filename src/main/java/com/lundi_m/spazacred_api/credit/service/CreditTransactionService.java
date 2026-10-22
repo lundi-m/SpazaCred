@@ -12,9 +12,11 @@ import com.lundi_m.spazacred_api.credit.repository.CreditAccountRepository;
 import com.lundi_m.spazacred_api.credit.repository.CreditTransactionRepository;
 import com.lundi_m.spazacred_api.exception.*;
 import com.lundi_m.spazacred_api.payment.repository.PaymentAllocationRepository;
+import com.lundi_m.spazacred_api.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,9 +34,9 @@ public class CreditTransactionService {
     private final CreditTransactionRepository creditTransactionRepository;
     private final CreditAccountRepository creditAccountRepository;
     private final PaymentAllocationRepository paymentAllocationRepository;
-
     private final CreditAccountService creditAccountService;
     private final AuditLogService auditLogService;
+    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     public CreditTransactionResponse createPurchase(Long customerId, CreatePurchaseRequest request) {
@@ -60,14 +62,13 @@ public class CreditTransactionService {
         CreditTransaction transaction = new CreditTransaction(
                 referenceNumber,
                 account,
-                null,
+                currentUserProvider.getCurrentUser().getUser(),
                 request.amount(),
                 request.description(),
                 dueDate
         );
         transaction = creditTransactionRepository.save(transaction);
 
-        assert request.dueDate() != null;
         Map<String, Object> details = Map.of(
                 "referenceNumber", referenceNumber,
                 "amount", request.amount(),
@@ -75,7 +76,7 @@ public class CreditTransactionService {
         );
 
         auditLogService.record(
-                null,
+                currentUserProvider.getCurrentUser().getUser(),
                 "PURCHASE_CREATED",
                 "CreditTransaction",
                 transaction.getId(),
@@ -94,6 +95,7 @@ public class CreditTransactionService {
                 .map(transaction -> toResponse(transaction, customerId));
     }
 
+    @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditTransactionResponse voidTransaction(Long transactionId, VoidTransactionRequest request) {
         CreditTransaction transaction = creditTransactionRepository.findById(transactionId)
@@ -113,11 +115,11 @@ public class CreditTransactionService {
             );
         }
 
-        transaction.voidTransaction(null);
+        transaction.voidTransaction(currentUserProvider.getCurrentUser().getUser());
 
-        Map<String, Object> details = Map.of("referenceNumber", request.reason());
+        Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(
-                null,
+                currentUserProvider.getCurrentUser().getUser(),
                 "TRANSACTION_VOIDED",
                 "CreditTransaction",
                 transaction.getId(),

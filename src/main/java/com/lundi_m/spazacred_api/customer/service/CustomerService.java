@@ -10,13 +10,12 @@ import com.lundi_m.spazacred_api.customer.dto.CustomerResponse;
 import com.lundi_m.spazacred_api.customer.dto.UpdateCustomerRequest;
 import com.lundi_m.spazacred_api.customer.entity.Customer;
 import com.lundi_m.spazacred_api.customer.repository.CustomerRepository;
-import com.lundi_m.spazacred_api.exception.CustomerNotFoundException;
-import com.lundi_m.spazacred_api.exception.DuplicateEmailException;
-import com.lundi_m.spazacred_api.exception.DuplicateIdNumberException;
-import com.lundi_m.spazacred_api.exception.DuplicatePhoneException;
+import com.lundi_m.spazacred_api.exception.*;
+import com.lundi_m.spazacred_api.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +28,9 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CreditAccountRepository creditAccountRepository;
-
     private final CreditAccountService accountService;
     private final AuditLogService auditLogService;
+    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
@@ -55,7 +54,8 @@ public class CustomerService {
                 request.address()
         );
         customer = customerRepository.save(customer);
-        auditLogService.record(null,
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
                 "CUSTOMER_CREATED",
                 "Customer",
                 customer.getId(),
@@ -108,31 +108,35 @@ public class CustomerService {
         customer.setAddress(request.address());
 
         CreditAccount account = findAccountOrThrow(id);
-        auditLogService.record(null,
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
                 "CUSTOMER_UPDATED",
                 "Customer",
                 id,
-                null);
+                null
+        );
         return toResponse(customer, account);
     }
 
+    @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public void deactivateCustomer(Long id, AccountStatusChangeRequest request) {
         Customer customer = findCustomerOrThrow(id);
         CreditAccount account = findAccountOrThrow(id);
 
         if (accountService.getOutstandingBalance(account.getId()).compareTo(BigDecimal.ZERO) > 0) {
-            throw new IllegalStateException("Cannot deactivate customer " + id + " with outstanding balance");
+            throw new CustomerHasOutstandingBalanceException(id);
         }
 
         customer.setActive(false);
-        Map<String, Object> details = Map.of("reason", request);
-        auditLogService.record(null,
+        Map<String, Object> details = Map.of("reason", request.reason());
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
                 "CUSTOMER_DEACTIVATED",
                 "Customer",
                 customer.getId(),
                 details
-                );
+        );
     }
 
     private Customer findCustomerOrThrow(Long id) {
@@ -154,8 +158,8 @@ public class CustomerService {
                 customer.getMiddleName(),
                 customer.getLastName(),
                 customer.getPhone(),
-                customer.getEmail(),
                 customer.getIdNumber(),
+                customer.getEmail(),
                 customer.getAddress(),
                 customer.isActive(),
                 account.getCreditLimit(),

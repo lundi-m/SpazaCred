@@ -15,9 +15,11 @@ import com.lundi_m.spazacred_api.payment.entity.Payment;
 import com.lundi_m.spazacred_api.payment.entity.PaymentAllocation;
 import com.lundi_m.spazacred_api.payment.entity.PaymentStatus;
 import com.lundi_m.spazacred_api.payment.repository.*;
+import com.lundi_m.spazacred_api.security.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,9 +38,9 @@ public class PaymentService {
     private final CreditTransactionRepository creditTransactionRepository;
     private final CreditAccountRepository creditAccountRepository;
     private final CustomerRepository customerRepository;
-
     private final CreditAccountService creditAccountService;
     private final AuditLogService auditLogService;
+    private final CurrentUserProvider currentUserProvider;
 
     @Transactional
     public PaymentResponse recordPayment(Long customerId, RecordPaymentRequest request) {
@@ -57,7 +59,7 @@ public class PaymentService {
         Payment payment = new Payment(
                 referenceNumber,
                 customer,
-                null,
+                currentUserProvider.getCurrentUser().getUser(),
                 request.amount(),
                 request.paymentMethod());
         payment = paymentRepository.save(payment);
@@ -69,7 +71,13 @@ public class PaymentService {
                 "amount", request.amount() ,
                 "paymentMethod", request.paymentMethod()
         );
-        auditLogService.record(null, "PAYMENT_RECORDED", "Payment", payment.getId(), details);
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
+                "PAYMENT_RECORDED",
+                "Payment",
+                payment.getId(),
+                details
+        );
 
         return toResponse(payment, customerId, allocationResponses);
     }
@@ -80,6 +88,7 @@ public class PaymentService {
                 .map(payment -> toResponse(payment, customerId, allocationsFor(payment)));
     }
 
+    @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public PaymentResponse voidPayment(Long paymentId, VoidPaymentRequest request) {
         Payment payment = paymentRepository.findById(paymentId)
@@ -92,10 +101,18 @@ public class PaymentService {
         List<PaymentAllocation> activeAllocations = paymentAllocationRepository
                 .findByPayment_IdAndReversedAtIsNull(paymentId);
 
-        activeAllocations.forEach(allocation -> allocation.reverse(null));
+        activeAllocations.forEach(allocation -> allocation
+                .reverse(currentUserProvider.getCurrentUser().getUser()));
 
-        payment.voidPayment(null);
+        payment.voidPayment(currentUserProvider.getCurrentUser().getUser());
 
+        auditLogService.record(
+                currentUserProvider.getCurrentUser().getUser(),
+                "PAYMENT_VOIDED",
+                "Payment",
+                payment.getId(),
+                Map.of("reason", request.reason())
+        );
         return toResponse(payment, payment.getCustomer().getId(), allocationsFor(payment));
     }
 
