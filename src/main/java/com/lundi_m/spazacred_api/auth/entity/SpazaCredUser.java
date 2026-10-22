@@ -46,6 +46,20 @@ public class SpazaCredUser extends Auditable {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    public SpazaCredUser(String firstName,
+                         String middleName,
+                         String lastName,
+                         String email,
+                         String passwordHash,
+                         Role role) {
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
+    }
+
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
