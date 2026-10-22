@@ -125,7 +125,7 @@ public class CustomerService {
         CreditAccount account = findAccountOrThrow(id);
 
         if (accountService.getOutstandingBalance(account.getId()).compareTo(BigDecimal.ZERO) > 0) {
-            throw new CustomerHasOutstandingBalanceException(id);
+            throw new OutstandingBalanceException(id);
         }
 
         customer.setActive(false);
