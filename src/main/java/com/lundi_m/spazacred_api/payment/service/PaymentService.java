@@ -84,6 +84,10 @@ public class PaymentService {
 
     @Transactional(readOnly = true)
     public Page<PaymentResponse> getPayments(Long customerId, Pageable pageable) {
+        if (!customerRepository.existsById(customerId)) {
+            throw new CustomerNotFoundException(customerId);
+        }
+
         return paymentRepository.findByCustomer_Id(customerId, pageable)
                 .map(payment -> toResponse(payment, customerId, allocationsFor(payment)));
     }
