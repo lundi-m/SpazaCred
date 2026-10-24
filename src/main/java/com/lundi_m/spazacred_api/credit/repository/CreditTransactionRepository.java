@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -30,5 +31,21 @@ public interface CreditTransactionRepository extends JpaRepository<CreditTransac
 
     List<CreditTransaction> findByCreditAccount_IdAndStatusOrderByDueDateAscCreatedAtAscIdAsc(
             Long creditAccountId, TransactionStatus status
+    );
+
+    @Query("""
+    SELECT t FROM CreditTransaction t
+    WHERE t.creditAccount.id = :accountId
+        AND t.status = com.lundi_m.spazacred_api.credit.entity.TransactionStatus.ACTIVE
+        AND t.dueDate < :today
+        AND t.amount > COALESCE((
+            SELECT SUM(a.amountAllocated)
+            FROM PaymentAllocation a
+            WHERE a.creditTransaction.id = t.id
+                AND a.reversedAt IS NULL), 0)
+    ORDER BY t.dueDate ASC
+    """)
+    List<CreditTransaction> findOverdueByAccountId(@Param("accountId") Long accountId,
+                                                   @Param("today") LocalDate today
     );
 }
