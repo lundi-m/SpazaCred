@@ -55,7 +55,8 @@ public class SecurityConfig {
                                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/login").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/api/v1/auth/change-password").authenticated()
+                        .anyRequest().hasAnyRole("ADMIN", "SHOP_OWNER", "EMPLOYEE"))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(e -> e.authenticationEntryPoint(
