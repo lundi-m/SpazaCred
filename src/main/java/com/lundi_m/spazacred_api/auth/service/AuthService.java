@@ -32,7 +32,6 @@ public class AuthService {
         );
 
         SpazaCredUserDetails userDetails = (SpazaCredUserDetails) authentication.getPrincipal();
-        assert userDetails != null;
         String token = jwtService.generateToken(userDetails);
 
         return new LoginResponse(

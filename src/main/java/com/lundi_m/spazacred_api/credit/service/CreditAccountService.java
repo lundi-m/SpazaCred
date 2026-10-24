@@ -39,8 +39,8 @@ public class CreditAccountService {
     }
 
     @Transactional(readOnly = true)
-    public CreditAccountResponse getAccount(Long accountId) {
-        CreditAccount account = findAccountOrThrow(accountId);
+    public CreditAccountResponse getAccount(Long customerId) {
+        CreditAccount account = findAccountOrThrow(customerId);
         return toResponse(account);
     }
 

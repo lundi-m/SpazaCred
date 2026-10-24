@@ -1,9 +1,6 @@
 package com.lundi_m.spazacred_api.customer.repository;
 
 import com.lundi_m.spazacred_api.customer.entity.Customer;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,10 +17,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     boolean existsByPhone(String phone);
 
-    boolean existsByEmailAndIdNot(@Email(message = "email must be a valid mail address") String email, Long id);
+    boolean existsByEmailAndIdNot(String email, Long id);
 
-    boolean existsByPhoneAndIdNot(@NotBlank(message = "phone is required") @Pattern(regexp = "^\\+?[0-9]{9,15}$",
-                message = "phone number must be 9 to 15 digits, optionally starting with +") String phone, Long id);
+    boolean existsByPhoneAndIdNot(String phone, Long id);
 
     @Query("""
         SELECT c FROM Customer c
