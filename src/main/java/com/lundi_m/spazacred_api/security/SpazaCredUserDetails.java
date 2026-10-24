@@ -19,6 +19,9 @@ public class SpazaCredUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (user.isMustChangePassword()) {
+            return List.of(new SimpleGrantedAuthority("PASSWORD_CHANGE_IS_REQUIRED"));
+        }
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
