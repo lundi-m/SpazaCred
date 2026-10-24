@@ -43,6 +43,10 @@ public class CreditTransactionService {
         CreditAccount account = creditAccountRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new CreditAccountNotFoundException(customerId));
 
+        if (!account.getCustomer().isActive()) {
+            throw new CustomerInactiveException(customerId);
+        }
+
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new InvalidAccountStatusTransitionException(
                     "Only an ACTIVE account can make purchases (current status: " + account.getStatus() + ")"
