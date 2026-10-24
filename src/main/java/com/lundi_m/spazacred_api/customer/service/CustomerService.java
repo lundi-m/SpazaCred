@@ -81,11 +81,14 @@ public class CustomerService {
                 ? null
                 : search.trim();
 
-        return customerRepository.findFiltered(searchTerm, pageable)
-                .map(customer -> {
-                    CreditAccount account = findAccountOrThrow(customer.getId());
-                    return toResponse(customer, account);
-                });
+        Page<Customer> customers = searchTerm == null
+                ? customerRepository.findAll(pageable)
+                : customerRepository.findFiltered(searchTerm, pageable);
+
+        return customers.map(customer -> {
+            CreditAccount account = findAccountOrThrow(customer.getId());
+            return toResponse(customer, account);
+        });
     }
 
     @Transactional
