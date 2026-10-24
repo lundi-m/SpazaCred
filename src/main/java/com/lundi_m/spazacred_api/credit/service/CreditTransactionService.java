@@ -41,7 +41,7 @@ public class CreditTransactionService {
     @Transactional
     public CreditTransactionResponse createPurchase(Long customerId, CreatePurchaseRequest request) {
         CreditAccount account = creditAccountRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+                .orElseThrow(() -> new CreditAccountNotFoundException(customerId));
 
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new InvalidAccountStatusTransitionException(
@@ -86,10 +86,10 @@ public class CreditTransactionService {
         return toResponse(transaction, customerId);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Page<CreditTransactionResponse> getHistory(Long customerId, Pageable pageable) {
         CreditAccount account = creditAccountRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new CustomerNotFoundException(customerId));
+                .orElseThrow(() -> new CreditAccountNotFoundException(customerId));
 
         return creditTransactionRepository.findByCreditAccount_Id(account.getId(), pageable)
                 .map(transaction -> toResponse(transaction, customerId));
