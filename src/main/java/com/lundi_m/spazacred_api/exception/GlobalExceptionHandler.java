@@ -1,5 +1,6 @@
 package com.lundi_m.spazacred_api.exception;
 
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -61,5 +62,16 @@ public class GlobalExceptionHandler {
         );
 
        return ResponseEntity.status(HttpStatus.FORBIDDEN.value()).body(body);
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<ErrorResponse> handleUnknownSortProperty(PropertyReferenceException exception) {
+        ErrorResponse body = ErrorResponse.of(
+                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                "Unknown sort property '" + exception.getPropertyName() + "'"
+        );
+
+        return ResponseEntity.badRequest().body(body);
     }
 }
