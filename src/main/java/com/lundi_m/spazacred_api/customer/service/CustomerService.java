@@ -131,6 +131,10 @@ public class CustomerService {
             throw new OutstandingBalanceException(id);
         }
 
+        if (!customer.isActive()) {
+            throw new CustomerInactiveException(customer.getId());
+        }
+
         customer.setActive(false);
         Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(
