@@ -40,7 +40,7 @@ public class CreditTransactionService {
 
     @Transactional
     public CreditTransactionResponse createPurchase(Long customerId, CreatePurchaseRequest request) {
-        CreditAccount account = creditAccountRepository.findByCustomerId(customerId)
+        CreditAccount account = creditAccountRepository.findByCustomerIdForUpdate(customerId)
                 .orElseThrow(() -> new CreditAccountNotFoundException(customerId));
 
         if (!account.getCustomer().isActive()) {

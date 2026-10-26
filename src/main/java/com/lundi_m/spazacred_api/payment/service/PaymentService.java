@@ -47,7 +47,7 @@ public class PaymentService {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
-        CreditAccount account = creditAccountRepository.findByCustomerId(customerId)
+        CreditAccount account = creditAccountRepository.findByCustomerIdForUpdate(customerId)
                 .orElseThrow(() -> new CreditAccountNotFoundException(customerId));
 
         BigDecimal outstanding = creditAccountService.getOutstandingBalance(account.getId());
