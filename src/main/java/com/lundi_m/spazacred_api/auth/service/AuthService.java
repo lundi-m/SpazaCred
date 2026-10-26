@@ -5,6 +5,8 @@ import com.lundi_m.spazacred_api.auth.dto.LoginRequest;
 import com.lundi_m.spazacred_api.auth.dto.LoginResponse;
 import com.lundi_m.spazacred_api.auth.entity.SpazaCredUser;
 import com.lundi_m.spazacred_api.auth.repository.SpazaCredUserRepository;
+import com.lundi_m.spazacred_api.exception.InvalidCurrentPasswordException;
+import com.lundi_m.spazacred_api.exception.PasswordUnchangedException;
 import com.lundi_m.spazacred_api.security.CurrentUserProvider;
 import com.lundi_m.spazacred_api.security.JwtService;
 import com.lundi_m.spazacred_api.security.SpazaCredUserDetails;
@@ -48,7 +50,10 @@ public class AuthService {
                 .orElseThrow(() -> new BadCredentialsException("User no longer exists"));
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
-            throw new BadCredentialsException("Current Password is incorrect");
+            throw new InvalidCurrentPasswordException();
+        }
+        if (passwordEncoder.matches(request.newPassword(), user.getPasswordHash())) {
+            throw new PasswordUnchangedException();
         }
 
         user.setPasswordHash(passwordEncoder.encode(request.newPassword()));
