@@ -1,5 +1,6 @@
 package com.lundi_m.spazacred_api.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,10 +26,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -44,16 +45,31 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SpazaCredUserDetails userDetails = (SpazaCredUserDetails) userDetailsService.loadUserByUsername(email);
 
                 if (userDetails.isEnabled() && jwtService.isTokenValid(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            userDetails.getAuthorities()
-                    );
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails,
+                                    null,
+                                    userDetails.getAuthorities()
+                            );
+
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                } else {
+                    request.setAttribute(RestAuthenticationEntryPoint.AUTH_ERROR_ATTRIBUTE, "TOKEN_INVALID");
                 }
             }
-        }catch (JwtException | IllegalArgumentException | UsernameNotFoundException exception) {
+
+        } catch (ExpiredJwtException exception) {
+            request.setAttribute(RestAuthenticationEntryPoint.AUTH_ERROR_ATTRIBUTE, "TOKEN_EXPIRED");
+
+            SecurityContextHolder.clearContext();
+
+        } catch (JwtException | IllegalArgumentException
+                 | UsernameNotFoundException exception) {
+
+            request.setAttribute(RestAuthenticationEntryPoint.AUTH_ERROR_ATTRIBUTE, "TOKEN_INVALID");
+
             SecurityContextHolder.clearContext();
         }
 
