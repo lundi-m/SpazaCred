@@ -28,6 +28,8 @@ public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+    private final RestAccessDeniedHandler restAccessDeniedHandler;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -59,9 +61,9 @@ public class SecurityConfig {
                         .anyRequest().hasAnyRole("ADMIN", "SHOP_OWNER", "EMPLOYEE"))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(e -> e.authenticationEntryPoint(
-                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
-                ));
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(restAuthenticationEntryPoint)
+                        .accessDeniedHandler(restAccessDeniedHandler));
 
         return http.build();
     }
