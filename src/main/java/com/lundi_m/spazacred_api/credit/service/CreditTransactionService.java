@@ -1,6 +1,7 @@
 package com.lundi_m.spazacred_api.credit.service;
 
 import com.lundi_m.spazacred_api.audit.service.AuditLogService;
+import com.lundi_m.spazacred_api.auth.entity.SpazaCredUser;
 import com.lundi_m.spazacred_api.credit.dto.CreatePurchaseRequest;
 import com.lundi_m.spazacred_api.credit.dto.CreditTransactionResponse;
 import com.lundi_m.spazacred_api.credit.dto.VoidTransactionRequest;
@@ -40,6 +41,8 @@ public class CreditTransactionService {
 
     @Transactional
     public CreditTransactionResponse createPurchase(Long customerId, CreatePurchaseRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         CreditAccount account = creditAccountRepository.findByCustomerIdForUpdate(customerId)
                 .orElseThrow(() -> new CreditAccountNotFoundException(customerId));
 
@@ -66,7 +69,7 @@ public class CreditTransactionService {
         CreditTransaction transaction = new CreditTransaction(
                 referenceNumber,
                 account,
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 request.amount(),
                 request.description(),
                 dueDate
@@ -80,7 +83,7 @@ public class CreditTransactionService {
         );
 
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "PURCHASE_CREATED",
                 "CreditTransaction",
                 transaction.getId(),
@@ -102,6 +105,8 @@ public class CreditTransactionService {
     @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditTransactionResponse voidTransaction(Long transactionId, VoidTransactionRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         CreditTransaction transaction = creditTransactionRepository.findById(transactionId)
                 .orElseThrow(() -> new CreditTransactionNotFoundException(transactionId));
 
@@ -119,11 +124,11 @@ public class CreditTransactionService {
             );
         }
 
-        transaction.voidTransaction(currentUserProvider.getCurrentUser().getUser());
+        transaction.voidTransaction(currentUser);
 
         Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "TRANSACTION_VOIDED",
                 "CreditTransaction",
                 transaction.getId(),

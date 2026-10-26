@@ -1,5 +1,6 @@
 package com.lundi_m.spazacred_api.credit.service;
 
+import com.lundi_m.spazacred_api.auth.entity.SpazaCredUser;
 import com.lundi_m.spazacred_api.credit.dto.AdjustLimitRequest;
 import com.lundi_m.spazacred_api.credit.dto.CreditAccountResponse;
 import com.lundi_m.spazacred_api.audit.service.AuditLogService;
@@ -47,6 +48,8 @@ public class CreditAccountService {
     @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditAccountResponse adjustCreditLimit(Long customerId, AdjustLimitRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         CreditAccount account = findAccountOrThrow(customerId);
         BigDecimal oldLimit = account.getCreditLimit();
 
@@ -59,7 +62,7 @@ public class CreditAccountService {
         );
 
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "LIMIT_ADJUSTED",
                 "CreditAccount",
                 account.getId(),
@@ -72,6 +75,8 @@ public class CreditAccountService {
     @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditAccountResponse suspendAccount(Long customerId, AccountStatusChangeRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         CreditAccount account = findAccountOrThrow(customerId);
         if (account.getStatus() != AccountStatus.ACTIVE) {
             throw new InvalidAccountStatusTransitionException(
@@ -82,7 +87,7 @@ public class CreditAccountService {
         account.setStatus(AccountStatus.SUSPENDED);
         Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "ACCOUNT_SUSPENDED",
                 "CreditAccount",
                 account.getId(),
@@ -95,6 +100,8 @@ public class CreditAccountService {
     @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditAccountResponse reactivateAccount(Long customerId, AccountStatusChangeRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         CreditAccount account = findAccountOrThrow(customerId);
         if (account.getStatus() != AccountStatus.SUSPENDED) {
             throw new InvalidAccountStatusTransitionException(
@@ -105,7 +112,7 @@ public class CreditAccountService {
         account.setStatus(AccountStatus.ACTIVE);
         Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "ACCOUNT_REACTIVATED",
                 "CreditAccount",
                 account.getId(),
@@ -118,6 +125,8 @@ public class CreditAccountService {
     @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public CreditAccountResponse closeAccount(Long customerId, AccountStatusChangeRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         CreditAccount account = findAccountOrThrow(customerId);
         if (account.getStatus() == AccountStatus.CLOSED) {
             throw new InvalidAccountStatusTransitionException("Account is already closed");
@@ -133,7 +142,7 @@ public class CreditAccountService {
         account.setStatus(AccountStatus.CLOSED);
         Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "ACCOUNT_CLOSED",
                 "CreditAccount",
                 account.getId(),

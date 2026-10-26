@@ -29,6 +29,8 @@ public class UserService {
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new DuplicateEmailException(request.email());
         }
@@ -45,7 +47,7 @@ public class UserService {
         user = userRepository.save(user);
 
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "USER_CREATED",
                 "SpazaCredUser",
                 user.getId(),

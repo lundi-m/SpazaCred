@@ -1,6 +1,7 @@
 package com.lundi_m.spazacred_api.customer.service;
 
 import com.lundi_m.spazacred_api.audit.service.AuditLogService;
+import com.lundi_m.spazacred_api.auth.entity.SpazaCredUser;
 import com.lundi_m.spazacred_api.credit.dto.AccountStatusChangeRequest;
 import com.lundi_m.spazacred_api.credit.entity.CreditAccount;
 import com.lundi_m.spazacred_api.credit.repository.CreditAccountRepository;
@@ -34,6 +35,8 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponse createCustomer(CreateCustomerRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         if (customerRepository.existsByIdNumber(request.idNumber())) {
             throw new DuplicateIdNumberException(request.idNumber());
         }
@@ -55,7 +58,7 @@ public class CustomerService {
         );
         customer = customerRepository.save(customer);
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "CUSTOMER_CREATED",
                 "Customer",
                 customer.getId(),
@@ -93,6 +96,8 @@ public class CustomerService {
 
     @Transactional
     public CustomerResponse updateCustomer(Long id, UpdateCustomerRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         Customer customer = findCustomerOrThrow(id);
 
         if (request.email() != null && customerRepository.existsByEmailAndIdNot(request.email(), id)) {
@@ -112,7 +117,7 @@ public class CustomerService {
 
         CreditAccount account = findAccountOrThrow(id);
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "CUSTOMER_UPDATED",
                 "Customer",
                 id,
@@ -124,6 +129,8 @@ public class CustomerService {
     @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public void deactivateCustomer(Long id, AccountStatusChangeRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         Customer customer = findCustomerOrThrow(id);
         CreditAccount account = findAccountOrThrow(id);
 
@@ -138,7 +145,7 @@ public class CustomerService {
         customer.setActive(false);
         Map<String, Object> details = Map.of("reason", request.reason());
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "CUSTOMER_DEACTIVATED",
                 "Customer",
                 customer.getId(),

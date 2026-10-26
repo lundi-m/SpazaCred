@@ -1,6 +1,7 @@
 package com.lundi_m.spazacred_api.payment.service;
 
 import com.lundi_m.spazacred_api.audit.service.AuditLogService;
+import com.lundi_m.spazacred_api.auth.entity.SpazaCredUser;
 import com.lundi_m.spazacred_api.credit.entity.CreditAccount;
 import com.lundi_m.spazacred_api.credit.entity.CreditTransaction;
 import com.lundi_m.spazacred_api.credit.entity.TransactionStatus;
@@ -44,6 +45,8 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponse recordPayment(Long customerId, RecordPaymentRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new CustomerNotFoundException(customerId));
 
@@ -59,7 +62,7 @@ public class PaymentService {
         Payment payment = new Payment(
                 referenceNumber,
                 customer,
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 request.amount(),
                 request.paymentMethod());
         payment = paymentRepository.save(payment);
@@ -72,7 +75,7 @@ public class PaymentService {
                 "paymentMethod", request.paymentMethod()
         );
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "PAYMENT_RECORDED",
                 "Payment",
                 payment.getId(),
@@ -95,6 +98,8 @@ public class PaymentService {
     @PreAuthorize("hasAnyRole('SHOP_OWNER', 'ADMIN')")
     @Transactional
     public PaymentResponse voidPayment(Long paymentId, VoidPaymentRequest request) {
+        SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
+
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
 
@@ -106,12 +111,12 @@ public class PaymentService {
                 .findByPayment_IdAndReversedAtIsNull(paymentId);
 
         activeAllocations.forEach(allocation -> allocation
-                .reverse(currentUserProvider.getCurrentUser().getUser()));
+                .reverse(currentUser));
 
-        payment.voidPayment(currentUserProvider.getCurrentUser().getUser());
+        payment.voidPayment(currentUser);
 
         auditLogService.record(
-                currentUserProvider.getCurrentUser().getUser(),
+                currentUser,
                 "PAYMENT_VOIDED",
                 "Payment",
                 payment.getId(),
