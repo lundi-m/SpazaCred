@@ -21,6 +21,10 @@ public interface CreditAccountRepository extends JpaRepository<CreditAccount, Lo
     @Query("SELECT a FROM CreditAccount a WHERE a.customer.id = :customerId")
     Optional<CreditAccount> findByCustomerIdForUpdate(@Param("customerId") Long customerId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT a FROM CreditAccount a WHERE a.id = :id")
+    Optional<CreditAccount> findByIdForUpdate(@Param("id") Long id);
+
     @Query(value = """
         SELECT a FROM CreditAccount a
         JOIN FETCH a.customer c
