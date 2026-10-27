@@ -31,5 +31,10 @@ public record CreateCustomerRequest(
 
         @NotNull(message = "credit limit is required")
         @DecimalMin(value = "0.00", message = "credit limit cannot be negative")
+        @Digits(
+                integer = 17,
+                fraction = 2,
+                message = "amount must have no more than 2 decimal places"
+        )
         BigDecimal creditLimit
 ) {}
