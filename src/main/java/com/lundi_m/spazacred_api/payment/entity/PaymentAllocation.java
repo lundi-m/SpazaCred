@@ -52,6 +52,8 @@ public class PaymentAllocation extends CreatedAtAuditable {
     }
 
     public void reverse(SpazaCredUser reversedBy) {
+        Objects.requireNonNull(reversedBy, "A user is required to reverse a payment allocation");
+
         this.reversedBy = reversedBy;
         this.reversedAt = Instant.now();
     }
