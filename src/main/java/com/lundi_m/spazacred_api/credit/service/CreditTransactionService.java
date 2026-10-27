@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.Year;
 import java.util.Map;
@@ -38,6 +39,7 @@ public class CreditTransactionService {
     private final CreditAccountService creditAccountService;
     private final AuditLogService auditLogService;
     private final CurrentUserProvider currentUserProvider;
+    private final Clock clock;
 
     @Transactional
     public CreditTransactionResponse createPurchase(Long customerId, CreatePurchaseRequest request) {
@@ -62,7 +64,7 @@ public class CreditTransactionService {
         }
 
         LocalDate dueDate = request.dueDate() != null
-                ? request.dueDate() : LocalDate.now().plusDays(DEFAULT_CREDIT_TERM_DAYS);
+                ? request.dueDate() : LocalDate.now(clock).plusDays(DEFAULT_CREDIT_TERM_DAYS);
 
         String referenceNumber = generateReferenceNumber();
 
@@ -140,7 +142,7 @@ public class CreditTransactionService {
 
     private String generateReferenceNumber() {
         Long seq = creditTransactionRepository.nextReferenceSequence();
-        return String.format("CRT-%d-%06d", Year.now().getValue(), seq);
+        return String.format("CRT-%d-%06d", Year.now(clock).getValue(), seq);
     }
 
     private CreditTransactionResponse toResponse(CreditTransaction transaction, Long customerId) {

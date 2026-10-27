@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -35,10 +36,11 @@ public class ReportService {
     private final PaymentRepository paymentRepository;
     private final PaymentAllocationRepository paymentAllocationRepository;
     private final CreditAccountService creditAccountService;
+    private final Clock clock;
 
     @Transactional(readOnly = true)
     public Page<OverdueReportRow> overdue(int minDaysOverdue, Pageable pageable) {
-        LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now(clock);
         LocalDate cutoff = today.minusDays(Math.max(minDaysOverdue, 1));
 
         return creditTransactionRepository.findOverduePage(cutoff, withoutSort(pageable))
@@ -65,8 +67,8 @@ public class ReportService {
 
     @Transactional(readOnly = true)
     public PaymentReportResponse payments(LocalDate from, LocalDate to, Pageable pageable) {
-        LocalDate start = from != null ? from : LocalDate.now().withDayOfMonth(1);
-        LocalDate end = to != null ? to : LocalDate.now();
+        LocalDate start = from != null ? from : LocalDate.now(clock).withDayOfMonth(1);
+        LocalDate end = to != null ? to : LocalDate.now(clock);
         if (start.isAfter(end)) {
             throw new InvalidDateRangeException();
         }

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,7 @@ public class PaymentService {
     private final CreditAccountService creditAccountService;
     private final AuditLogService auditLogService;
     private final CurrentUserProvider currentUserProvider;
+    private final Clock clock;
 
     @Transactional
     public PaymentResponse recordPayment(Long customerId, RecordPaymentRequest request) {
@@ -178,7 +180,7 @@ public class PaymentService {
 
     private String generateReferenceNumber() {
         Long seq = paymentRepository.nextReferenceSequence();
-        return String.format("PAY-%d-%06d", Year.now().getValue(), seq);
+        return String.format("PAY-%d-%06d", Year.now(clock).getValue(), seq);
     }
 
     private PaymentResponse toResponse(Payment payment, Long customerId, List<PaymentAllocationResponse> allocations) {
