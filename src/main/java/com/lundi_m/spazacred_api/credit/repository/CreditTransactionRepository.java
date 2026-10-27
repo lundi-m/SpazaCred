@@ -72,4 +72,18 @@ public interface CreditTransactionRepository extends JpaRepository<CreditTransac
                     AND x.reversedAt IS NULL), 0)
     """)
     Page<CreditTransaction> findOverduePage(@Param("cutoff") LocalDate cutoff, Pageable pageable);
+
+    @Query("""
+    SELECT DISTINCT t.creditAccount.id
+    FROM CreditTransaction t
+    WHERE t.creditAccount.status = com.lundi_m.spazacred_api.credit.entity.AccountStatus.ACTIVE
+        AND t.status = com.lundi_m.spazacred_api.credit.entity.TransactionStatus.ACTIVE
+        AND t.dueDate < :cutoff
+        AND t.amount > COALESCE((
+            SELECT SUM(a.amountAllocated)
+            FROM PaymentAllocation a
+            WHERE a.creditTransaction.id = t.id
+                AND a.reversedAt IS NULL), 0)
+    """)
+    List<Long> findActiveAccountIdsWithDebtDueBefore(@Param("cutoff") LocalDate cutoff);
 }
