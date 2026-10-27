@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.lundi_m.spazacred_api.audit.repository.AuditLogSpecifications.*;
 
@@ -28,9 +29,16 @@ public class AuditLogService {
     private final AuditLogRepository auditLogRepository;
 
     @Transactional
-    public void record(SpazaCredUser user, String action, String entityType, Long entityId, Map<String, Object> detailsJson) {
-        AuditLog log = new AuditLog(user, action, entityType, entityId, detailsJson);
-        auditLogRepository.save(log);
+    public void record(SpazaCredUser user, String action, String entityType,
+                       Long entityId, Map<String, Object> details) {
+        Objects.requireNonNull(user, "A user is required; use recordSystemAction for automated actions");
+        auditLogRepository.save(new AuditLog(user, action, entityType, entityId, details));
+    }
+
+    @Transactional
+    public void recordSystemAction(String action, String entityType,
+                                   Long entityId, Map<String, Object> details) {
+        auditLogRepository.save(new AuditLog(null, action, entityType, entityId, details));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
