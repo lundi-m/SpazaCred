@@ -23,13 +23,13 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
     @Query("""
         SELECT c FROM Customer c
-        WHERE (:search IS NULL OR
-               LOWER(c.firstName) LIKE LOWER(CONCAT('%', :search, '%')) OR
-               LOWER(c.middleName) LIKE LOWER(CONCAT('%', :search, '%')) OR
-               LOWER(c.lastName) LIKE LOWER(CONCAT('%', :search, '%')) OR
-               c.phone LIKE CONCAT('%', :search, '%') OR
-               c.idNumber LIKE CONCAT('%', :search, '%') OR
-               LOWER(c.email) LIKE LOWER(CONCAT('%', :search, '%')))
+        WHERE (CAST(:search AS string) IS NULL OR
+               LOWER(c.firstName) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR
+               LOWER(c.middleName) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR
+               LOWER(c.lastName) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR
+               c.phone LIKE CONCAT('%', CAST(:search AS string), '%') OR
+               c.idNumber LIKE CONCAT('%', CAST(:search AS string), '%') OR
+               LOWER(c.email) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))
         """)
     Page<Customer> findFiltered(
             @Param("search") String search,
