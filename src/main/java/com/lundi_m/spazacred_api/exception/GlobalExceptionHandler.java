@@ -2,6 +2,7 @@ package com.lundi_m.spazacred_api.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.core.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -96,6 +97,13 @@ public class GlobalExceptionHandler {
             InvalidDateRangeException exception) {
 
         return build(HttpStatus.BAD_REQUEST, "INVALID_DATE_RANGE", exception.getMessage());
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<ErrorResponse> handleUnknownSortProperty(
+            PropertyReferenceException exception) {
+
+        return build(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Unknown sort property '" + exception.getPropertyName() + "'");
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
