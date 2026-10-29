@@ -102,7 +102,7 @@ public class PaymentService {
     public PaymentResponse voidPayment(Long paymentId, VoidPaymentRequest request) {
         SpazaCredUser currentUser = currentUserProvider.getCurrentUser().getUser();
 
-        Payment payment = paymentRepository.findById(paymentId)
+        Payment payment = paymentRepository.findByIdForUpdate(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException(paymentId));
 
         if (payment.getStatus() == PaymentStatus.VOIDED) {
