@@ -91,6 +91,13 @@ public class GlobalExceptionHandler {
                 "This record was changed by someone else. Reload it and try again");
     }
 
+    @ExceptionHandler(InvalidDateRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidDateRange(
+            InvalidDateRangeException exception) {
+
+        return build(HttpStatus.BAD_REQUEST, "INVALID_DATE_RANGE", exception.getMessage());
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDataIntegrity(DataIntegrityViolationException exception) {
         log.warn("Data integrity violation", exception);
