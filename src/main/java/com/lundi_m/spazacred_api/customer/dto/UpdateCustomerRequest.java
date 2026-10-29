@@ -24,5 +24,6 @@ public record UpdateCustomerRequest (
         @Email(message = "email must be a valid mail address")
         String email,
 
+        @NotBlank(message = "address is required")
         String address
 ){}
