@@ -14,6 +14,8 @@ import com.lundi_m.spazacred_api.credit.repository.CreditTransactionRepository;
 import com.lundi_m.spazacred_api.exception.*;
 import com.lundi_m.spazacred_api.payment.repository.PaymentAllocationRepository;
 import com.lundi_m.spazacred_api.security.CurrentUserProvider;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,7 @@ public class CreditTransactionService {
     private final CreditAccountService creditAccountService;
     private final AuditLogService auditLogService;
     private final CurrentUserProvider currentUserProvider;
+    private final EntityManager entityManager;
     private final Clock clock;
 
     @Transactional
@@ -111,6 +114,13 @@ public class CreditTransactionService {
 
         CreditTransaction transaction = creditTransactionRepository.findById(transactionId)
                 .orElseThrow(() -> new CreditTransactionNotFoundException(transactionId));
+
+        Long customerId = transaction.getCreditAccount().getCustomer().getId();
+
+        creditAccountRepository.findByCustomerIdForUpdate(customerId)
+                .orElseThrow(() -> new CreditAccountNotFoundException(customerId));
+
+        entityManager.refresh(transaction, LockModeType.PESSIMISTIC_WRITE);
 
         if (transaction.getStatus() == TransactionStatus.VOIDED) {
             throw new TransactionNotVoidableException("Transaction " + transactionId + " is already voided");
