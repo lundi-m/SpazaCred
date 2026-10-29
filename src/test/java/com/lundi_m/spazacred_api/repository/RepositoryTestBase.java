@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SpringBootTest
 @Import(TestContainersConfiguration.class)
 @Transactional
-abstract class RepositoryTestBase {
+public abstract class RepositoryTestBase {
 
     private static final AtomicInteger COUNTER = new AtomicInteger(1);
 
