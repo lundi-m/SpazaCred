@@ -40,9 +40,16 @@ public class CustomerService {
         if (customerRepository.existsByIdNumber(request.idNumber())) {
             throw new DuplicateIdNumberException(request.idNumber());
         }
-        if (customerRepository.existsByEmail(request.email())) {
-            throw new DuplicateEmailException(request.email());
+
+        String email = request.email() == null
+                ? null
+                : request.email().trim();
+
+        if (email != null && !email.isBlank()
+                && customerRepository.existsByEmail(email)) {
+            throw new DuplicateEmailException(email);
         }
+
         if (customerRepository.existsByPhone(request.phone())) {
             throw new DuplicatePhoneException(request.phone());
         }
