@@ -57,6 +57,7 @@ public class SecurityConfig {
                                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/v1/auth/login").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         .requestMatchers("/api/v1/auth/change-password").authenticated()
                         .anyRequest().hasAnyRole("ADMIN", "SHOP_OWNER", "EMPLOYEE"))
                 .authenticationProvider(authenticationProvider())
