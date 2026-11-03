@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SpringBootTest
+@SpringBootTest(properties = "jwt.secret=test-only-secret-key-that-is-at-least-32-bytes-long")
 @Import(TestContainersConfiguration.class)
 @Transactional
 public abstract class RepositoryTestBase {
