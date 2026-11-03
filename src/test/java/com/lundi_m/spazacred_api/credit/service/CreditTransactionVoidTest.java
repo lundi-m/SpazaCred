@@ -7,6 +7,7 @@ import com.lundi_m.spazacred_api.credit.dto.VoidTransactionRequest;
 import com.lundi_m.spazacred_api.credit.entity.CreditAccount;
 import com.lundi_m.spazacred_api.credit.entity.CreditTransaction;
 import com.lundi_m.spazacred_api.credit.entity.TransactionStatus;
+import com.lundi_m.spazacred_api.credit.repository.CreditAccountRepository;
 import com.lundi_m.spazacred_api.credit.repository.CreditTransactionRepository;
 import com.lundi_m.spazacred_api.customer.entity.Customer;
 import com.lundi_m.spazacred_api.exception.CreditTransactionNotFoundException;
@@ -14,6 +15,7 @@ import com.lundi_m.spazacred_api.exception.TransactionNotVoidableException;
 import com.lundi_m.spazacred_api.payment.repository.PaymentAllocationRepository;
 import com.lundi_m.spazacred_api.security.CurrentUserProvider;
 import com.lundi_m.spazacred_api.security.SpazaCredUserDetails;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,9 +38,11 @@ public class CreditTransactionVoidTest {
     private static final Long TRANSACTION_ID = 5L;
 
     @Mock private CreditTransactionRepository creditTransactionRepository;
+    @Mock private CreditAccountRepository creditAccountRepository;
     @Mock private PaymentAllocationRepository paymentAllocationRepository;
     @Mock private AuditLogService auditLogService;
     @Mock private CurrentUserProvider currentUserProvider;
+    @Mock private EntityManager entityManager;
 
     @InjectMocks private CreditTransactionService creditTransactionService;
 
@@ -59,9 +63,9 @@ public class CreditTransactionVoidTest {
         transaction = new CreditTransaction("CRT-2026-000005", account, staff,
                 new BigDecimal("500.00"), "groceries", LocalDate.of(2026, 11, 1));
         transaction.setId(TRANSACTION_ID);
-
         lenient().when(currentUserProvider.getCurrentUser()).thenReturn(new SpazaCredUserDetails(staff));
         lenient().when(creditTransactionRepository.findById(TRANSACTION_ID)).thenReturn(Optional.of(transaction));
+        lenient().when(creditAccountRepository.findByCustomerIdForUpdate(1L)).thenReturn(Optional.of(account));
     }
 
     @Test
