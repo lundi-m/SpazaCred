@@ -54,7 +54,7 @@ jobs:
       - uses: docker/setup-buildx-action@v4
 
       - name: Log in to the GitHub container registry
-        if: github.ref == 'refs/heads/main'
+        if: github.ref == 'refs/heads/master'
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -70,11 +70,11 @@ jobs:
             type=raw,value=latest,enable={{is_default_branch}}
             type=sha
 
-      - name: Build the image (and publish it from main)
+      - name: Build the image (and publish it from master)
         uses: docker/build-push-action@v7
         with:
           context: .
-          push: ${{ github.ref == 'refs/heads/main' }}
+          push: ${{ github.ref == 'refs/heads/master' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
