@@ -1,6 +1,7 @@
 package com.lundi_m.spazacred_api.payment.dto;
 
 import com.lundi_m.spazacred_api.payment.entity.PaymentMethod;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
@@ -9,6 +10,10 @@ import java.math.BigDecimal;
 
 public record RecordPaymentRequest(
 
+        @Schema(
+                description = "Payment amount. Must be greater than zero and have no more than 2 decimal places.",
+                example = "800.00"
+        )
         @NotNull(message = "amount is required")
         @DecimalMin(value = "0.01", message = "amount must be greater than zero")
         @Digits(
@@ -18,6 +23,10 @@ public record RecordPaymentRequest(
         )
         BigDecimal amount,
 
+        @Schema(
+                description = "Method used to make the payment",
+                example = "CASH"
+        )
         @NotNull(message = "payment method is required")
         PaymentMethod paymentMethod
 ) {}
